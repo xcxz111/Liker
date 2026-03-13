@@ -1,0 +1,40 @@
+# Python
+
+**pycache**/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual environment
+
+.venv/
+venv/
+
+# Environment variables
+
+.env
+
+# Project data
+
+accounts/
+data/
+
+# Telegram sessions
+
+*.session
+*.session-journal
+*.dat
+
+# Logs
+
+*.log
+
+# OS
+
+.DS_Store
+Thumbs.db
+
+# IDE
+
+.idea/
+.vscode/
