@@ -85,6 +85,34 @@ def accounts_keyboard(
             ),
         ]
     )
+
+    # Массовые операции по стране (ниже переключателя страны)
+    rows.append(
+        [
+            InlineKeyboardButton(
+                text="Изменить имена всем ✏️",
+                callback_data=f"bulk_name:{country}",
+            ),
+            InlineKeyboardButton(
+                text="Изменить bio всем 📝",
+                callback_data=f"bulk_bio:{country}",
+            ),
+        ]
+    )
+
+    rows.append(
+        [
+            InlineKeyboardButton(
+                text="Изменить фото всем 🖼",
+                callback_data=f"bulk_photo:{country}",
+            ),
+            InlineKeyboardButton(
+                text="Изменить сообщения всем 💬",
+                callback_data=f"bulk_message:{country}",
+            ),
+        ]
+    )
+
     rows.append(
         [
             InlineKeyboardButton(text="Назад", callback_data="back_countries"),
