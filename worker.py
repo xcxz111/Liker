@@ -785,7 +785,10 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
         try:
             messages = await client.get_messages(chat, limit=50)
         except Exception as e:
-            print(f"❌ Не удалось получить сообщения чата: {e}")
+            print(
+                f"❌ {colored_label} не удалось получить сообщения чата "
+                f"'{chat_name_for_log}': {e}"
+            )
             continue
 
         # Оставляем только текстовые, без медиа и сервисных — для определения языка
