@@ -602,7 +602,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
         source = "file"
 
         if link:
-            print(f"📂 Работаем по файлу: {link}")
+            print(f"📂 {colored_label} работает по файлу: {link}")
 
             # Если такая ссылка уже есть в БД, просто пропускаем её
             async with pool.acquire() as conn:
@@ -660,7 +660,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
 
             internal_chat_id, link, chat_country_db, last_liked_message_id_db = row
             source = "db"
-            print(f"🗄 Работаем по БД: {link}")
+            print(f"🗄 {colored_label} работает по БД: {link}")
 
         # 4️⃣ Получаем сущность чата по ссылке
         try:
