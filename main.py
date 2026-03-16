@@ -5,13 +5,11 @@ import os
 from aiogram import Bot, Dispatcher, F
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.filters import CommandStart
-from aiogram.types import Message
 from dotenv import load_dotenv
 
 from db.database import create_pool
 from db.tables import create_tables
-from accounts.connecting import connect_all_clients
+from connecting import connect_all_clients
 from handlers_accounts import router as accounts_router
 
 

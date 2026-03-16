@@ -1209,7 +1209,7 @@ async def account_toggle_handler(callback: CallbackQuery, dispatcher: Dispatcher
     - меняем user_status между on/off
     - при включении запускаем воркер, если он ещё не запущен
     """
-    from accounts.worker import process_account  # локальный импорт
+    from worker import process_account  # локальный импорт
 
     _, country, account = callback.data.split(":", 2)
 
@@ -1563,7 +1563,7 @@ async def enable_all_handler(callback: CallbackQuery, dispatcher: Dispatcher) ->
     - если все выключены -> включаем (user_status = 'on') и запускаем воркеры
     - если есть включённые -> выключаем всех (user_status = 'off')
     """
-    from accounts.worker import process_account  # локальный импорт, чтобы избежать циклов
+    from worker import process_account  # локальный импорт, чтобы избежать циклов
 
     pool = dispatcher["db"]
     clients = dispatcher["clients"]
@@ -1612,7 +1612,7 @@ async def enable_country_toggle(callback: CallbackQuery, dispatcher: Dispatcher)
     - если все аккаунты страны off -> включаем только их и запускаем воркеры
     - если есть включённые -> выключаем все аккаунты этой страны
     """
-    from accounts.worker import process_account  # локальный импорт, чтобы избежать циклов
+    from worker import process_account  # локальный импорт, чтобы избежать циклов
 
     _, country = callback.data.split(":", 1)
 

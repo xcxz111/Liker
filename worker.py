@@ -665,8 +665,16 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
         # 4️⃣ Получаем сущность чата по ссылке
         try:
             chat = await client.get_entity(link)
+        except FloodWaitError as e:
+            # Лимит на ResolveUsername/получение сущности по username
+            print(
+                f"⏳ {colored_label} FloodWait при получении чата {link}: "
+                f"нужно ждать {e.seconds} сек"
+            )
+            await asyncio.sleep(e.seconds)
+            continue
         except (ChannelPrivateError, InviteHashInvalidError) as e:
-            print(f"❌ Невозможно зайти по ссылке {link}: {e}")
+            print(f"❌ {colored_label} невозможно зайти по ссылке {link}: {e}")
             # Если ссылка была взята из БД и чат недоступен — удаляем запись из БД
             if source == "db" and internal_chat_id is not None:
                 async with pool.acquire() as conn:
@@ -675,10 +683,13 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
                             "DELETE FROM chats WHERE id = %s",
                             (internal_chat_id,),
                         )
-                        print(f"🗑 Чат с id={internal_chat_id} удалён из БД как битый")
+                        print(
+                            f"🗑 {colored_label} чат с id={internal_chat_id} "
+                            f"удалён из БД как битый"
+                        )
             continue
         except Exception as e:
-            print(f"❌ Ошибка при получении чата {link}: {e}")
+            print(f"❌ {colored_label} ошибка при получении чата {link}: {e}")
             continue
 
         chat_name_for_log = (
