@@ -385,7 +385,7 @@ async def process_channel_link(
     if not can_comment:
         # Нет комментариев — просто спим и выходим
         if joined:
-            sleep_sec = random.randint(400, 600)
+            sleep_sec = random.randint(405, 605)
             print(
                 f"😴 {colored_label} (канал без комментариев) "
                 f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -393,7 +393,7 @@ async def process_channel_link(
             )
             await asyncio.sleep(sleep_sec)
         else:
-            sleep_sec = random.randint(10, 15)
+            sleep_sec = random.randint(15, 20)
             print(
                 f"😴 {colored_label} (канал без комментариев, без вступления) "
                 f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -447,7 +447,7 @@ async def process_channel_link(
     # Если язык канала не совпадает со страной аккаунта — не вступаем, просто спим и выходим
     if not channel_country or channel_country != user_country:
         if joined:
-            sleep_sec = random.randint(400, 600)
+            sleep_sec = random.randint(405, 605)
             print(
                 f"😴 {colored_label} (язык канала не совпал) "
                 f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -455,7 +455,7 @@ async def process_channel_link(
             )
             await asyncio.sleep(sleep_sec)
         else:
-            sleep_sec = random.randint(10, 15)
+            sleep_sec = random.randint(15, 20)
             print(
                 f"😴 {colored_label} (язык канала не совпал, без вступления) "
                 f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -524,7 +524,7 @@ async def process_channel_link(
                     f"({'после вступления' if joined else 'без вступления'})"
                 )
 
-            await asyncio.sleep(random.randint(6, 10))
+            await asyncio.sleep(random.randint(11, 15))
         except FloodWaitError as e:
             print(f"⏳ FloodWait {e.seconds} сек (канал)")
             await asyncio.sleep(e.seconds)
@@ -543,7 +543,7 @@ async def process_channel_link(
 
     # Сон после обработки канала
     if joined:
-        sleep_sec = random.randint(400, 600)
+        sleep_sec = random.randint(405, 605)
         print(
             f"😴 {colored_label} (канал, после лайков) "
             f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -551,7 +551,7 @@ async def process_channel_link(
         )
         await asyncio.sleep(sleep_sec)
     else:
-        sleep_sec = random.randint(10, 15)
+        sleep_sec = random.randint(15, 20)
         print(
             f"😴 {colored_label} (канал, после лайков, без вступления) "
             f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -617,7 +617,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
                 print(
                     f"⏭ Ссылка {link} уже есть в таблице chats (id={existing_chat[0]}), пропускаем"
                 )
-                await asyncio.sleep(1)
+                await asyncio.sleep(6)
                 continue
 
         else:
@@ -655,7 +655,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
 
             if not row:
                 print("❌ Нет подходящих чатов в БД")
-                await asyncio.sleep(10)
+                await asyncio.sleep(15)
                 continue
 
             internal_chat_id, link, chat_country_db, last_liked_message_id_db = row
@@ -829,7 +829,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
         if not chat_country:
             joined = await ensure_joined(client, chat)
             if joined:
-                sleep_sec = random.randint(400, 600)
+                sleep_sec = random.randint(405, 605)
                 print(
                     f"😴 {colored_label} (язык не определён) "
                     f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -837,7 +837,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
                 )
                 await asyncio.sleep(sleep_sec)
             else:
-                sleep_sec = random.randint(5, 15)
+                sleep_sec = random.randint(10, 20)
                 print(
                     f"😴 {colored_label} (язык не определён, без вступления) "
                     f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -853,7 +853,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
             # последние 20 сообщений-кандидатов для реакций (Telethon возвращает от новых к старым)
             last_20 = reaction_messages[:20]
             if not last_20:
-                await asyncio.sleep(5)
+                await asyncio.sleep(10)
                 continue
 
             # Самое новое сообщение в чате
@@ -865,7 +865,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
                 if last_msg_id - last_liked_message_id_db <= 20:
                     # недостаточно новых сообщений — просто спим и берём следующий чат
                     if joined:
-                        sleep_sec = random.randint(400, 600)
+                        sleep_sec = random.randint(405, 605)
                         print(
                             f"😴 {colored_label} (мало новых сообщений) "
                             f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -873,7 +873,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
                         )
                         await asyncio.sleep(sleep_sec)
                     else:
-                        sleep_sec = random.randint(5, 15)
+                        sleep_sec = random.randint(10, 20)
                         print(
                             f"😴 {colored_label} (мало новых сообщений, без вступления) "
                             f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -925,7 +925,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
                         success_count += 1
 
                     # Чуть увеличиваем паузу между реакциями, чтобы реже ловить flood wait
-                    await asyncio.sleep(random.randint(6, 10))
+                    await asyncio.sleep(random.randint(11, 15))
                 except FloodWaitError as e:
                     print(f"⏳ FloodWait {e.seconds} сек")
                     await asyncio.sleep(e.seconds)
@@ -945,7 +945,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
         else:
             # Язык не совпал — просто спим и берём следующую ссылку
             if joined:
-                sleep_sec = random.randint(400, 600)
+                sleep_sec = random.randint(405, 605)
                 print(
                     f"😴 {colored_label} (язык не совпал) "
                     f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -953,7 +953,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
                 )
                 await asyncio.sleep(sleep_sec)
             else:
-                sleep_sec = random.randint(5, 15)
+                sleep_sec = random.randint(10, 20)
                 print(
                     f"😴 {colored_label} (язык не совпал, без вступления) "
                     f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -964,7 +964,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
 
         # Сон после обработки чата, когда ставили реакции
         if joined:
-            sleep_sec = random.randint(400, 600)
+            sleep_sec = random.randint(405, 605)
             print(
                 f"😴 {colored_label} (после лайков) "
                 f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -972,7 +972,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
             )
             await asyncio.sleep(sleep_sec)
         else:
-            sleep_sec = random.randint(5, 15)
+            sleep_sec = random.randint(10, 20)
             print(
                 f"😴 {colored_label} (после лайков, без вступления) "
                 f"\033[31mспит {sleep_sec} сек\033[0m "

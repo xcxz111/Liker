@@ -84,7 +84,7 @@ def attach_private_message_handler(client: TelegramClient, pool):
             return
 
         # Ставим задержку перед ответом
-        await asyncio.sleep(random.randint(10, 20))
+        await asyncio.sleep(random.randint(15, 25))
 
         try:
             await event.respond(user_message)
