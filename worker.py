@@ -1,8 +1,11 @@
 import asyncio
 import os
 import random
+from collections import Counter
 from datetime import datetime
 
+from langdetect import DetectorFactory, detect
+from langdetect.lang_detect_exception import LangDetectException
 from telethon import functions, types
 from telethon.errors import (
     FloodWaitError,
@@ -18,6 +21,9 @@ REACTIONS = ["😘", "❤️", "😍", "🥰", "🔥", "😱", "🤩", "💯"]
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CHAT_LINKS_PATH = os.path.join(BASE_DIR, "data", "chat_links.txt")
 CHANNEL_LINKS_PATH = os.path.join(BASE_DIR, "data", "channel_links.txt")
+
+# Делает результаты langdetect детерминированными между запусками
+DetectorFactory.seed = 0
 
 # Набор разных цветов для аккаунтов
 ACCOUNT_COLORS = [
@@ -66,29 +72,50 @@ async def get_and_remove_link(file_lock: asyncio.Lock, path: str):
 
 def detect_chat_language(messages):
     """
-    Очень простая эвристика по последним текстовым сообщениям.
-    Можно будет заменить на нормальную библиотеку.
+    Определяем основной язык чата по последним текстовым сообщениям.
+    Используем langdetect и считаем преобладающий язык по отдельным сообщениям.
     """
-    text = " ".join(
-        [m.message for m in messages if getattr(m, "message", None)]
-    ).lower()
+    texts: list[str] = []
+    for m in messages:
+        msg = getattr(m, "message", None)
+        if not msg:
+            continue
+        # Отбрасываем совсем короткие фрагменты, по ним детектор часто ошибается
+        normalized = msg.strip()
+        if len(normalized) < 10:
+            continue
+        texts.append(normalized)
 
-    if not text:
+    if not texts:
         return None
 
-    # Примитивные проверки по ключевым словам
-    if any(w in text for w in [" der ", " die ", " und ", " nicht ", " ist "]):
-        return "DE"
-    if any(w in text for w in [" el ", " la ", " que ", " y ", " no "]):
-        return "ES"
-    if any(w in text for w in [" il ", " lo ", " che ", " non ", " per "]):
-        return "IT"
-    if any(w in text for w in [" и ", " не ", " что ", " это ", " как "]):
-        return "RU"
-    if any(w in text for w in [" the ", " and ", " not ", " is ", " you "]):
-        return "EN"
+    counts: Counter[str] = Counter()
+    for t in texts:
+        try:
+            code = detect(t)  # например: "de", "fr", "ar", "zh-cn"
+        except LangDetectException:
+            continue
+        if not code:
+            continue
+        base_code = code.split("-")[0].upper()
+        counts[base_code] += 1
 
-    return None
+    if not counts:
+        return None
+
+    # Берём язык с максимальным количеством "голосов"
+    lang, cnt = counts.most_common(1)[0]
+
+    # Если сообщений слишком мало или разброс большой, можно не доверять результату
+    total = sum(counts.values())
+    if total < 3:
+        return None
+    share = cnt / total
+    if share < 0.4:
+        # нет явно доминирующего языка
+        return None
+
+    return lang
 
 
 async def purge_dialogs_and_channels(client, colored_label: str):
