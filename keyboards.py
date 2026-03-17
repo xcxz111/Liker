@@ -217,7 +217,8 @@ def stats_chats_keyboard(lang_counts: dict[str, int]) -> InlineKeyboardMarkup:
     Клавиатура для статистики по чатам по языкам.
     """
     rows = []
-    for lang, count in sorted(lang_counts.items()):
+    # Сортируем по количеству чатов (по убыванию), при равенстве — по коду языка
+    for lang, count in sorted(lang_counts.items(), key=lambda x: (-x[1], x[0])):
         rows.append(
             [
                 InlineKeyboardButton(
@@ -242,7 +243,8 @@ def stats_channels_keyboard(lang_counts: dict[str, int]) -> InlineKeyboardMarkup
     Клавиатура для статистики по каналам по языкам (только с включёнными комментариями).
     """
     rows = []
-    for lang, count in sorted(lang_counts.items()):
+    # Сортируем по количеству каналов (по убыванию), при равенстве — по коду языка
+    for lang, count in sorted(lang_counts.items(), key=lambda x: (-x[1], x[0])):
         rows.append(
             [
                 InlineKeyboardButton(
