@@ -213,6 +213,9 @@ async def ensure_joined(client, chat) -> bool:
         # если заявка на вступление или приватный канал
         if "requested to join" in str(e):
             print(f"📨 {colored_label} отправил заявку на вступление в '{chat_name_for_log}'")
+            # Считаем "как вступили" по логике пауз: чтобы не долбить чат дальше,
+            # пока Telegram не одобрит заявку.
+            return True
         else:
             err = str(e)
             # При лимитах очищаем каналы и диалоги
@@ -412,7 +415,7 @@ async def process_channel_link(
     if not can_comment:
         # Нет комментариев — просто спим и выходим
         if joined:
-            sleep_sec = random.randint(405, 605)
+            sleep_sec = random.randint(500, 800)
             print(
                 f"😴 {colored_label} (канал без комментариев) "
                 f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -474,7 +477,7 @@ async def process_channel_link(
     # Если язык канала не совпадает со страной аккаунта — не вступаем, просто спим и выходим
     if not channel_country or channel_country != user_country:
         if joined:
-            sleep_sec = random.randint(405, 605)
+            sleep_sec = random.randint(500, 800)
             print(
                 f"😴 {colored_label} (язык канала не совпал) "
                 f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -570,7 +573,7 @@ async def process_channel_link(
 
     # Сон после обработки канала
     if joined:
-        sleep_sec = random.randint(405, 605)
+        sleep_sec = random.randint(500, 800)
         print(
             f"😴 {colored_label} (канал, после лайков) "
             f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -856,7 +859,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
         if not chat_country:
             joined = await ensure_joined(client, chat)
             if joined:
-                sleep_sec = random.randint(405, 605)
+                sleep_sec = random.randint(500, 800)
                 print(
                     f"😴 {colored_label} (язык не определён) "
                     f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -892,7 +895,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
                 if last_msg_id - last_liked_message_id_db <= 20:
                     # недостаточно новых сообщений — просто спим и берём следующий чат
                     if joined:
-                        sleep_sec = random.randint(405, 605)
+                        sleep_sec = random.randint(500, 800)
                         print(
                             f"😴 {colored_label} (мало новых сообщений) "
                             f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -972,7 +975,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
         else:
             # Язык не совпал — просто спим и берём следующую ссылку
             if joined:
-                sleep_sec = random.randint(405, 605)
+                sleep_sec = random.randint(500, 800)
                 print(
                     f"😴 {colored_label} (язык не совпал) "
                     f"\033[31mспит {sleep_sec} сек\033[0m "
@@ -991,7 +994,7 @@ async def process_account(client, pool, file_lock: asyncio.Lock):
 
         # Сон после обработки чата, когда ставили реакции
         if joined:
-            sleep_sec = random.randint(405, 605)
+            sleep_sec = random.randint(500, 800)
             print(
                 f"😴 {colored_label} (после лайков) "
                 f"\033[31mспит {sleep_sec} сек\033[0m "
