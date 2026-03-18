@@ -19,6 +19,16 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Telethon часто пишет INFO-шум (updates/diff для channel/user).
+# Снижаем уровень логов Telethon, чтобы не утонуть в консоли.
+for telethon_logger_name in (
+    "telethon",
+    "telethon.client",
+    "telethon.client.updates",
+    "telethon.client.users",
+):
+    logging.getLogger(telethon_logger_name).setLevel(logging.WARNING)
+
 
 def load_config() -> dict:
     load_dotenv()
