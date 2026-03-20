@@ -50,9 +50,20 @@ def accounts_keyboard(
     total: int,
     enabled: int,
     statuses: dict[str, str],
+    page: int = 1,
+    page_size: int = 50,
 ) -> InlineKeyboardMarkup:
     rows = []
-    for acc in sorted(accounts):
+    accounts_sorted = sorted(accounts)
+    total_accounts = len(accounts_sorted)
+    total_pages = max(1, (total_accounts + page_size - 1) // page_size)
+    page = max(1, min(page, total_pages))
+
+    start = (page - 1) * page_size
+    end = start + page_size
+    page_accounts = accounts_sorted[start:end]
+
+    for acc in page_accounts:
         status = statuses.get(acc)
         if status == "on":
             acc_emoji = "🟢"
@@ -64,10 +75,35 @@ def accounts_keyboard(
             [
                 InlineKeyboardButton(
                     text=f"{acc} {acc_emoji}",
-                    callback_data=f"acc:{country}:{acc}",
+                    callback_data=f"acc:{country}:{acc}:{page}",
                 )
             ]
         )
+
+    # Навигация по страницам аккаунтов
+    if total_pages > 1:
+        nav_row = []
+        if page > 1:
+            nav_row.append(
+                InlineKeyboardButton(
+                    text="⬅️",
+                    callback_data=f"country:{country}:{page - 1}",
+                )
+            )
+        nav_row.append(
+            InlineKeyboardButton(
+                text=f"{page}/{total_pages}",
+                callback_data="noop",
+            )
+        )
+        if page < total_pages:
+            nav_row.append(
+                InlineKeyboardButton(
+                    text="➡️",
+                    callback_data=f"country:{country}:{page + 1}",
+                )
+            )
+        rows.append(nav_row)
 
     # Определяем эмодзи для состояния страны
     if enabled == 0:
@@ -123,7 +159,9 @@ def accounts_keyboard(
     return InlineKeyboardMarkup(inline_keyboard=rows)
 
 
-def account_actions_keyboard(country: str, account: str, status: str = None) -> InlineKeyboardMarkup:
+def account_actions_keyboard(
+    country: str, account: str, status: str = None, page: int = 1
+) -> InlineKeyboardMarkup:
     """
     Клавиатура действий для конкретного аккаунта.
     """
@@ -175,7 +213,7 @@ def account_actions_keyboard(country: str, account: str, status: str = None) -> 
             [
                 InlineKeyboardButton(
                     text="Назад",
-                    callback_data=f"back_accounts:{country}",
+                    callback_data=f"back_accounts:{country}:{page}",
                 ),
                 InlineKeyboardButton(
                     text="Главная",

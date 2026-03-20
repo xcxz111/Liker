@@ -371,7 +371,9 @@ async def show_countries(callback: CallbackQuery, dispatcher: Dispatcher) -> Non
 
 @router.callback_query(F.data.startswith("country:"))
 async def show_accounts(callback: CallbackQuery, dispatcher: Dispatcher) -> None:
-    _, country = callback.data.split(":", 1)
+    parts = callback.data.split(":")
+    country = parts[1]
+    page = int(parts[2]) if len(parts) > 2 and parts[2].isdigit() else 1
     base_path = os.getenv("COUNTRY_FOLDER", "accounts")
     country_path = os.path.join(base_path, country)
 
@@ -414,7 +416,9 @@ async def show_accounts(callback: CallbackQuery, dispatcher: Dispatcher) -> None
         f"Страна: {country}\n"
         f"Статус: включено {on_count} из {total}\n"
         f"Выберите аккаунт:",
-        reply_markup=accounts_keyboard(country, accounts, total, on_count, status_by_number),
+        reply_markup=accounts_keyboard(
+            country, accounts, total, on_count, status_by_number, page=page, page_size=50
+        ),
     )
 
 
@@ -429,7 +433,9 @@ async def account_menu(callback: CallbackQuery, dispatcher: Dispatcher) -> None:
     """
     Меню конкретного аккаунта: изменить имя/bio/фото/сообщение.
     """
-    _, country, account = callback.data.split(":", 2)
+    parts = callback.data.split(":")
+    _, country, account = parts[:3]
+    page = int(parts[3]) if len(parts) > 3 and parts[3].isdigit() else 1
 
     # Берём данные аккаунта из БД
     pool = dispatcher["db"]
@@ -472,7 +478,7 @@ async def account_menu(callback: CallbackQuery, dispatcher: Dispatcher) -> None:
             f"<b>Реакций поставлено</b>: {likes_text}\n\n"
             f"Выберите действие:"
         ),
-        reply_markup=account_actions_keyboard(country, account, user_status),
+        reply_markup=account_actions_keyboard(country, account, user_status, page=page),
     )
 
 
@@ -996,7 +1002,9 @@ async def back_to_accounts_from_actions(callback: CallbackQuery, dispatcher: Dis
     """
     Возврат из меню действий аккаунта к списку аккаунтов страны.
     """
-    _, country = callback.data.split(":", 1)
+    parts = callback.data.split(":")
+    country = parts[1]
+    page = int(parts[2]) if len(parts) > 2 and parts[2].isdigit() else 1
     base_path = os.getenv("COUNTRY_FOLDER", "accounts")
     country_path = os.path.join(base_path, country)
 
@@ -1038,8 +1046,15 @@ async def back_to_accounts_from_actions(callback: CallbackQuery, dispatcher: Dis
         f"Страна: {country}\n"
         f"Статус: включено {on_count} из {total}\n"
         f"Выберите аккаунт:",
-        reply_markup=accounts_keyboard(country, accounts, total, on_count, status_by_number),
+        reply_markup=accounts_keyboard(
+            country, accounts, total, on_count, status_by_number, page=page, page_size=50
+        ),
     )
+
+
+@router.callback_query(F.data == "noop")
+async def noop_callback(callback: CallbackQuery) -> None:
+    await callback.answer()
 
 
 @router.callback_query(F.data.startswith("acc_action:"))
