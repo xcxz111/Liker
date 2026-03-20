@@ -30,6 +30,23 @@ class AccountStates(StatesGroup):
     change_message = State()
 
 
+def build_limited_report_text(lines: list[str], max_chars: int = 3800) -> str:
+    """
+    Telegram ограничивает длину текста сообщения (~4096 символов).
+    Собираем текст отчёта и аккуратно обрезаем, если он слишком длинный.
+    """
+    full_text = "\n".join(lines)
+    if len(full_text) <= max_chars:
+        return full_text
+
+    truncated = full_text[: max_chars - 120].rstrip()
+    return (
+        f"{truncated}\n\n"
+        f"...\n"
+        f"⚠️ Отчёт был сокращён: слишком много строк ({len(full_text)} символов)."
+    )
+
+
 async def change_photo_single(
     callback: CallbackQuery,
     dispatcher: Dispatcher,
@@ -609,7 +626,10 @@ async def bulk_name_handler(callback: CallbackQuery, dispatcher: Dispatcher) -> 
         text_lines.append("⚠️ Не изменены:")
         text_lines.extend(f"- {line}" for line in not_changed)
 
-    await callback.message.edit_text("\n".join(text_lines), reply_markup=main_keyboard())
+    await callback.message.edit_text(
+        build_limited_report_text(text_lines),
+        reply_markup=main_keyboard(),
+    )
 
 
 @router.callback_query(F.data.startswith("bulk_bio:"))
@@ -739,7 +759,10 @@ async def bulk_bio_handler(callback: CallbackQuery, dispatcher: Dispatcher) -> N
         text_lines.append("⚠️ Не изменены bio:")
         text_lines.extend(f"- {line}" for line in not_changed)
 
-    await callback.message.edit_text("\n".join(text_lines), reply_markup=main_keyboard())
+    await callback.message.edit_text(
+        build_limited_report_text(text_lines),
+        reply_markup=main_keyboard(),
+    )
 
 
 @router.callback_query(F.data.startswith("bulk_photo:"))
@@ -892,7 +915,10 @@ async def bulk_photo_handler(callback: CallbackQuery, dispatcher: Dispatcher) ->
         text_lines.append("⚠️ Фото не изменены:")
         text_lines.extend(f"- {line}" for line in not_changed)
 
-    await callback.message.edit_text("\n".join(text_lines), reply_markup=main_keyboard())
+    await callback.message.edit_text(
+        build_limited_report_text(text_lines),
+        reply_markup=main_keyboard(),
+    )
 
 
 @router.callback_query(F.data.startswith("bulk_message:"))
@@ -994,7 +1020,10 @@ async def bulk_message_handler(callback: CallbackQuery, dispatcher: Dispatcher) 
         text_lines.append("⚠️ Не изменены сообщения:")
         text_lines.extend(f"- {line}" for line in not_changed)
 
-    await callback.message.edit_text("\n".join(text_lines), reply_markup=main_keyboard())
+    await callback.message.edit_text(
+        build_limited_report_text(text_lines),
+        reply_markup=main_keyboard(),
+    )
 
 
 @router.callback_query(F.data.startswith("back_accounts:"))
