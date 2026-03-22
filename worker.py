@@ -218,8 +218,16 @@ async def ensure_joined(client, chat) -> bool:
             return True
         else:
             err = str(e)
-            # При лимитах очищаем каналы и диалоги
-            if "CHANNELS_TOO_MUCH" in err or "DIALOGS_TOO_MUCH" in err:
+            err_low = err.lower()
+            # Лимит каналов/супергрупп или диалогов (Telegram может вернуть код или англ. текст)
+            too_many_channels = (
+                "CHANNELS_TOO_MUCH" in err
+                or "too many channels" in err_low
+                or "too many supergroups" in err_low
+                or "joined too many" in err_low
+            )
+            too_many_dialogs = "DIALOGS_TOO_MUCH" in err or "too many dialogs" in err_low
+            if too_many_channels or too_many_dialogs:
                 print(
                     f"⚠️ {colored_label} достиг лимита по каналам/диалогам при вступлении "
                     f"в '{chat_name_for_log}': {err}"
